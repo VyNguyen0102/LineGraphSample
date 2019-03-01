@@ -14,8 +14,9 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let lineColors = [UIColor.red, UIColor.green, UIColor.blue]
         var graphData: [GraphItem] = []
-        for i in 0...9 {
+        for i in 0...19 {
             var itemValue: [GraphItemPoint] = []
             for y in 0..<3 {
                 let item = GraphItemPoint.init(itemID: y, value: CGFloat(getRandomNumberBetween(5, to: 18)))
@@ -24,19 +25,12 @@ class ViewController: UIViewController {
             let graphItem = GraphItem(stringLabel: "Label \(i)", valueArray: itemValue)
             graphData.append(graphItem)
         }
-        
+        mGraphView.lineColors = lineColors
         mGraphView.graphValues = graphData
     }
     
     func getRandomNumberBetween(_ from: Int, to: Int) -> Int {
-        
         return from + Int(arc4random()) % (to - from + 1)
-        for _ in 1...5 {
-            print("Hello World")
-        }
-        [1,2,3,4].forEach { behavior in
-            return
-        }
     }
 
 

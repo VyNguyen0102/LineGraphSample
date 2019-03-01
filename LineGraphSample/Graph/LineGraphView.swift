@@ -11,18 +11,6 @@ import UIKit
 
 //#import "MYGraphView.h"
 
-
-let kDefaultColor = UIColor.gray
-let kPointRadius = 3
-
-let kDisplayValueLabel:Bool = true
-let kDisplayAllValue:Bool = true
-let kStartFromZero:Bool = true
-
-let kMaxStepCount:CGFloat = 10
-let kRulerSpliter:CGFloat = 10
-let kFooterStepCount:CGFloat = 5
-
 struct GraphItemPoint {
     let itemID: Int
     let value: CGFloat
@@ -35,19 +23,40 @@ struct GraphItem {
 
 class LineGraphView: BaseCustomView {
 
+    let defaultColor = UIColor.gray
+    let pointRadius = 3
+    
+    let displayValueLabel:Bool = true
+    let displayAllValue:Bool = true
+    let startFromZero:Bool = true
+    
+    let maxStepCount:CGFloat = 10
+    let rulerSpliter:CGFloat = 10
+    let footerStepCount:CGFloat = 5
+    
     @IBOutlet weak var mainScrollView: UIScrollView!
     var mainScrollContent: UIView!
     @IBOutlet weak var footerView: UIView!
     @IBOutlet weak var leftRuler: UIView!
 
     var graphValues:[GraphItem] = []
+    var lineColors = [UIColor.red, UIColor.green, UIColor.blue]
+    
+    func getColorForIndex(index: Int) -> UIColor {
+        if lineColors.indices.contains(index) {
+            return lineColors[index]
+        } else {
+            return defaultColor
+        }
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         self.fillData()
     }
 
     func fillData() {
-        var minValue:CGFloat = kStartFromZero ? 0 :self.getMinGraphValue()
+        var minValue:CGFloat = startFromZero ? 0 :self.getMinGraphValue()
         var maxValue:CGFloat = self.getMaxGraphValue()
         let step:CGFloat = self.getGetStepWithMinValue(minValue: minValue, maxValue:maxValue)
         minValue = self.fRoundDown(number: minValue, withStep:step)
@@ -96,16 +105,16 @@ class LineGraphView: BaseCustomView {
         for i in 0...stepCount {
             let ySpliter:CGFloat = CGFloat(Float(i)) * layoutStep
             let fPoint:CGPoint = CGPoint.init(x: CGFloat(marginLeft), y: CGFloat(ySpliter))
-            let tPoint:CGPoint = CGPoint.init(x: CGFloat(marginLeft - kRulerSpliter),y: CGFloat(ySpliter))
+            let tPoint:CGPoint = CGPoint.init(x: CGFloat(marginLeft - rulerSpliter),y: CGFloat(ySpliter))
             self.drawLineAt(view: self.leftRuler, From:fPoint, to:tPoint)
-            let lblPoint:CGPoint = CGPoint.init(x:CGFloat(kRulerSpliter),y: CGFloat(ySpliter))
+            let lblPoint:CGPoint = CGPoint.init(x:CGFloat(rulerSpliter),y: CGFloat(ySpliter))
             self.drawText(text: self.stringValue(value: Float(startValue)), onView:self.leftRuler, at:lblPoint)
             startValue -= step
         }
     }
 
     func stringValue(value:Float) -> String! {
-        return String(format:"%f",value)
+        return String(format:"%.1f",value)
     }
     func drawFooter() {
         self.drawText(text: "this is footer", onView:self.footerView, at: CGPoint.init(x:200,y: 40))
@@ -129,12 +138,13 @@ class LineGraphView: BaseCustomView {
         let previousValue:NSMutableDictionary! = NSMutableDictionary()
         
         for item in self.graphValues {
-            for itemPoint in item.valueArray {
+            for index in 0..<item.valueArray.count {
+                let itemPoint = item.valueArray[index]
                 yPoint = (maxValue - itemPoint.value) * layoutValue
                 let point:CGPoint = CGPoint.init(x: xPoint, y: yPoint)
-                let color:UIColor =  kDefaultColor
+                let color:UIColor =  getColorForIndex(index: index)
                 self.drawPoint(view: self.mainScrollContent, at:point, color:color)
-                if kDisplayValueLabel {
+                if displayValueLabel {
                     self.drawText(text: self.stringValue(value: Float(itemPoint.value)), onView:self.mainScrollContent, at: CGPoint.init(x:xPoint,y: yPoint - 20))
                 }
                 let key:String! = String(format:"%d", itemPoint.itemID)
@@ -144,8 +154,8 @@ class LineGraphView: BaseCustomView {
                 }
                 previousValue.setObject(NSValue(cgPoint:point), forKey:key! as NSCopying)
             }
-            self.drawLineAt(view: self.mainScrollContent, From:CGPoint.init(x:xPoint,y: yBottom), to: CGPoint.init(x:xPoint, y: yBottom + kRulerSpliter))
-            self.drawText(text: item.stringLabel, onView:self.mainScrollContent, at: CGPoint.init(x: xPoint, y: yBottom + 2 * kRulerSpliter))
+            self.drawLineAt(view: self.mainScrollContent, From:CGPoint.init(x:xPoint,y: yBottom), to: CGPoint.init(x:xPoint, y: yBottom + rulerSpliter))
+            self.drawText(text: item.stringLabel, onView:self.mainScrollContent, at: CGPoint.init(x: xPoint, y: yBottom + 2 * rulerSpliter))
             xPoint += footerStepW
         }
         // set content size
@@ -155,10 +165,7 @@ class LineGraphView: BaseCustomView {
         self.mainScrollView.contentSize = self.mainScrollContent.frame.size
     }
     func getFooterStepWidth() -> CGFloat {
-        return self.mainScrollContent.frame.width / kFooterStepCount
-    }
-    func colorForLine(lineID:Int) -> UIColor! {
-        return UIColor.red
+        return self.mainScrollContent.frame.width / footerStepCount
     }
     // pragma Calculator
 
@@ -197,7 +204,7 @@ class LineGraphView: BaseCustomView {
     }
     func getGetStepWithMinValue(minValue:CGFloat, maxValue:CGFloat) -> CGFloat {
         let maxRange:CGFloat = maxValue - minValue
-        let step:CGFloat = maxRange / CGFloat(kMaxStepCount)
+        let step:CGFloat = maxRange / CGFloat(maxStepCount)
         if step <= 0.1 {
             return 0.1
         } else if step <= 1 {
@@ -209,7 +216,7 @@ class LineGraphView: BaseCustomView {
         } else if step <= 100 {
             return self.fRoundUp(number: step, withStep:10)
         } else {
-            let numberString:String! = String(format:"%.0f",step)
+            let numberString:String! = String(format:"%.1f",step)
             return self.fRoundUp(number: step, withStep:( pow(10,CGFloat(numberString.count - 1))))
         }
     }
@@ -241,10 +248,10 @@ class LineGraphView: BaseCustomView {
         view.layer.addSublayer(shapeLayer)
     }
     func drawLineAt(view:UIView!, From frmPoint:CGPoint, to toPoint:CGPoint) {
-        self.drawLineAt(view: view, From:frmPoint, to:toPoint, color:kDefaultColor)
+        self.drawLineAt(view: view, From:frmPoint, to:toPoint, color:defaultColor)
     }
     func drawPoint(view:UIView!, at point:CGPoint, color:UIColor!) {
-        let rect:CGRect = CGRect.init(x: point.x - CGFloat(kPointRadius), y: point.y - CGFloat(kPointRadius), width: CGFloat(2 * kPointRadius), height: CGFloat(2 * kPointRadius))
+        let rect:CGRect = CGRect.init(x: point.x - CGFloat(pointRadius), y: point.y - CGFloat(pointRadius), width: CGFloat(2 * pointRadius), height: CGFloat(2 * pointRadius))
         let path:UIBezierPath! = UIBezierPath(ovalIn: rect)
 
         let shapeLayer:CAShapeLayer! = CAShapeLayer()
@@ -255,14 +262,14 @@ class LineGraphView: BaseCustomView {
         view.layer.addSublayer(shapeLayer)
     }
     func drawPoint(view:UIView!, at point:CGPoint) {
-        self.drawPoint(view: view, at:point, color:kDefaultColor)
+        self.drawPoint(view: view, at:point, color: defaultColor)
     }
     // Drawing some text on view
     func drawText(text:String!, onView view:UIView!, at position:CGPoint, color:UIColor!) {
         let lbl = UILabel.init(frame: CGRect.init(origin: position, size: CGSize.zero))
         lbl.text = text
         lbl.textAlignment = .center
-        lbl.textColor = kDefaultColor
+        lbl.textColor = defaultColor
         lbl.font = UIFont(name: "AlNile", size:10.0)
         let fixedWidth:CGFloat = lbl.frame.size.width
         let newSize:CGSize = lbl.sizeThatFits(CGSize.init(width:fixedWidth,height: CGFloat(MAXFLOAT)))
@@ -272,6 +279,6 @@ class LineGraphView: BaseCustomView {
         view.addSubview(lbl)
     }
     func drawText(text:String!, onView view:UIView!, at position:CGPoint) {
-        self.drawText(text: text, onView:view, at:position, color:kDefaultColor)
+        self.drawText(text: text, onView:view, at:position, color: defaultColor)
     }
 }
