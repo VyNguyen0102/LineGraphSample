@@ -13,6 +13,16 @@ import UIKit
 // But in this project i still need to do it.
 // You can add it to View controller xib file :)
 // Don't forget set file owner in xib file
+extension NSObject {
+    // Static Class using
+    class var string: String {
+        return String(describing: self)
+    }
+    
+    var className: String {
+        return type(of: self).description().components(separatedBy: ".").last!
+    }
+}
 
 class BaseCustomView: UIView {
 
@@ -27,7 +37,7 @@ class BaseCustomView: UIView {
     }
 
     func getNibName() -> String {
-        return classIdentifier()
+        return className
     }
 
     func load() {
@@ -52,29 +62,29 @@ class BaseCustomView: UIView {
         childView.translatesAutoresizingMaskIntoConstraints = false
 
         let centerXConstraint = NSLayoutConstraint(item: childView,
-                                                   attribute: NSLayoutAttribute.centerX,
-                                                   relatedBy: NSLayoutRelation.equal,
+                                                   attribute: NSLayoutConstraint.Attribute.centerX,
+                                                   relatedBy: NSLayoutConstraint.Relation.equal,
                                                    toItem: parentView,
-                                                   attribute: NSLayoutAttribute.centerX,
+                                                   attribute: NSLayoutConstraint.Attribute.centerX,
                                                    multiplier: 1, constant: 0)
 
         let centerYConstraint = NSLayoutConstraint(item: childView,
-                                                   attribute: NSLayoutAttribute.centerY,
-                                                   relatedBy: NSLayoutRelation.equal,
+                                                   attribute: NSLayoutConstraint.Attribute.centerY,
+                                                   relatedBy: NSLayoutConstraint.Relation.equal,
                                                    toItem: parentView,
-                                                   attribute: NSLayoutAttribute.centerY,
+                                                   attribute: NSLayoutConstraint.Attribute.centerY,
                                                    multiplier: 1, constant: 0)
         let heightConstraint = NSLayoutConstraint(item: childView,
-                                                  attribute: NSLayoutAttribute.height,
-                                                  relatedBy: NSLayoutRelation.equal,
+                                                  attribute: NSLayoutConstraint.Attribute.height,
+                                                  relatedBy: NSLayoutConstraint.Relation.equal,
                                                   toItem: parentView,
-                                                  attribute: NSLayoutAttribute.height,
+                                                  attribute: NSLayoutConstraint.Attribute.height,
                                                   multiplier: 1, constant: 0)
         let widthConstraint = NSLayoutConstraint(item: childView,
-                                                 attribute: NSLayoutAttribute.width,
-                                                 relatedBy: NSLayoutRelation.equal,
+                                                 attribute: NSLayoutConstraint.Attribute.width,
+                                                 relatedBy: NSLayoutConstraint.Relation.equal,
                                                  toItem: parentView,
-                                                 attribute: NSLayoutAttribute.width,
+                                                 attribute: NSLayoutConstraint.Attribute.width,
                                                  multiplier: 1, constant: 0)
 
         parentView.addConstraints([centerXConstraint, centerYConstraint, heightConstraint, widthConstraint])

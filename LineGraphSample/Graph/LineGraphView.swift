@@ -25,7 +25,7 @@ let kFooterStepCount:CGFloat = 5
 
 struct GraphItemPoint {
     let itemID: Int
-    let value: Float
+    let value: CGFloat
 }
 
 struct GraphItem {
@@ -33,10 +33,10 @@ struct GraphItem {
     let valueArray: [GraphItemPoint]
 }
 
-class MYGraphView: BaseCustomView {
+class LineGraphView: BaseCustomView {
 
     @IBOutlet weak var mainScrollView: UIScrollView!
-    @IBOutlet weak var mainScrollContent: UIView!
+    var mainScrollContent: UIView!
     @IBOutlet weak var footerView: UIView!
     @IBOutlet weak var leftRuler: UIView!
 
@@ -53,18 +53,22 @@ class MYGraphView: BaseCustomView {
         minValue = self.fRoundDown(number: minValue, withStep:step)
         maxValue = self.fRoundUp(number: maxValue, withStep:step)
         // clear old data;
-        for view:UIView? in self.leftRuler.subviews {
-            view?.removeFromSuperview()
+        for view in self.leftRuler.subviews {
+            view.removeFromSuperview()
         }
         self.leftRuler.layer.sublayers = nil
         //
-        for view:UIView? in self.footerView.subviews {
-            view?.removeFromSuperview()
+        for view in self.footerView.subviews {
+            view.removeFromSuperview()
         }
         self.footerView.layer.sublayers = nil
         //
-        for view:UIView? in self.mainScrollContent.subviews {
-            view?.removeFromSuperview()
+        if mainScrollContent == nil {
+            mainScrollContent = UIView.init(frame: mainScrollView.frame)
+            mainScrollView.addSubview(mainScrollContent)
+        }
+        for view in self.mainScrollContent.subviews {
+            view.removeFromSuperview()
         }
         self.mainScrollContent.layer.sublayers = nil
         //
@@ -87,15 +91,15 @@ class MYGraphView: BaseCustomView {
 
         let stepCount:Int = Int((maxValue - minValue)/step)
 
-        let layoutStep:CGFloat = yBottom / stepCount
+        let layoutStep:CGFloat = yBottom / CGFloat(stepCount)
         var startValue:CGFloat = maxValue
         for i in 0...stepCount {
-            let ySpliter:CGFloat = Float(i) * layoutStep
+            let ySpliter:CGFloat = CGFloat(Float(i)) * layoutStep
             let fPoint:CGPoint = CGPoint.init(x: CGFloat(marginLeft), y: CGFloat(ySpliter))
             let tPoint:CGPoint = CGPoint.init(x: CGFloat(marginLeft - kRulerSpliter),y: CGFloat(ySpliter))
             self.drawLineAt(view: self.leftRuler, From:fPoint, to:tPoint)
             let lblPoint:CGPoint = CGPoint.init(x:CGFloat(kRulerSpliter),y: CGFloat(ySpliter))
-            self.drawText(text: self.stringValue(value: startValue), onView:self.leftRuler, at:lblPoint)
+            self.drawText(text: self.stringValue(value: Float(startValue)), onView:self.leftRuler, at:lblPoint)
             startValue -= step
         }
     }
@@ -114,7 +118,7 @@ class MYGraphView: BaseCustomView {
     func drawContent() {
         //Drawing some thing not scroll
     }
-    func drawScrollaberContent(minValue:Float, MaxValue maxValue:CGFloat, Step step:CGFloat) {
+    func drawScrollaberContent(minValue:CGFloat, MaxValue maxValue:CGFloat, Step step:CGFloat) {
         // draw
         var xPoint:CGFloat = 30
         let footerStepW:CGFloat = self.getFooterStepWidth()
@@ -123,24 +127,25 @@ class MYGraphView: BaseCustomView {
         let layoutValue:CGFloat = yBottom / (maxValue - minValue)
 
         let previousValue:NSMutableDictionary! = NSMutableDictionary()
-        for item:GraphItem? in self.graphValues {
-            for itemPoint in (item?.valueArray)! {
+        
+        for item in self.graphValues {
+            for itemPoint in item.valueArray {
                 yPoint = (maxValue - itemPoint.value) * layoutValue
                 let point:CGPoint = CGPoint.init(x: xPoint, y: yPoint)
                 let color:UIColor =  kDefaultColor
                 self.drawPoint(view: self.mainScrollContent, at:point, color:color)
                 if kDisplayValueLabel {
-                    self.drawText(text: self.stringValue(itemPoint.value), onView:self.mainScrollContent, at:CGPoint.init(x:xPoint, yPoint - 20))
+                    self.drawText(text: self.stringValue(value: Float(itemPoint.value)), onView:self.mainScrollContent, at: CGPoint.init(x:xPoint,y: yPoint - 20))
                 }
                 let key:String! = String(format:"%d", itemPoint.itemID)
-                if previousValue.object(forKey: key) {
-                    let value:NSValue! = previousValue.objectForKey(key) as! NSValue
-                    self.drawDashedLineAt(view: self.mainScrollContent, From:point, to:value.CGPointValue(), color:color)
+                if (previousValue.object(forKey: key) != nil) {
+                    let value:NSValue! = previousValue.object(forKey: key) as? NSValue
+                    self.drawDashedLineAt(view: self.mainScrollContent, From: point, to: value.cgPointValue , color:color)
                 }
-                previousValue.setObject(NSValue(CGPoint:point), forKey:key as! NSCopying)
+                previousValue.setObject(NSValue(cgPoint:point), forKey:key! as NSCopying)
             }
-            self.drawLineAt(view: self.mainScrollContent, From:CGPoint.init(x:xPoint, yBottom), to:CGPoint.init(x:xPoint, yBottom + kRulerSpliter))
-            self.drawText(item.stringLabel, onView:self.mainScrollContent, at:CGPoint.init(x:xPoint, yBottom + 2*, kRulerSpliter))
+            self.drawLineAt(view: self.mainScrollContent, From:CGPoint.init(x:xPoint,y: yBottom), to: CGPoint.init(x:xPoint, y: yBottom + kRulerSpliter))
+            self.drawText(text: item.stringLabel, onView:self.mainScrollContent, at: CGPoint.init(x: xPoint, y: yBottom + 2 * kRulerSpliter))
             xPoint += footerStepW
         }
         // set content size
@@ -157,12 +162,12 @@ class MYGraphView: BaseCustomView {
     }
     // pragma Calculator
 
-    func getMaxGraphValue() -> Float {
-        var maxValue:Float = 0
-        for item:GraphItem? in self.graphValues {
-            for itemPoint:GraphItemPoint? in item!.valueArray {
-                if maxValue < itemPoint!.value {
-                    maxValue = itemPoint!.value
+    func getMaxGraphValue() -> CGFloat {
+        var maxValue:CGFloat = 0
+        for item in self.graphValues {
+            for itemPoint in item.valueArray {
+                if maxValue < itemPoint.value {
+                    maxValue = itemPoint.value
                 }
             }
         }
@@ -171,28 +176,28 @@ class MYGraphView: BaseCustomView {
 
     func getMinGraphValue() -> CGFloat {
         var minValue:CGFloat = CGFloat(MAXFLOAT)
-        for item:GraphItem? in self.graphValues {
-            for itemPoint:GraphItemPoint? in item!.valueArray {
-                if minValue > itemPoint!.value {
-                    minValue = itemPoint!.value
+        for item in self.graphValues {
+            for itemPoint in item.valueArray {
+                if minValue > itemPoint.value {
+                    minValue = itemPoint.value
                 }
             }
         }
         return minValue
     }
-    func fRoundUp(number:Float, withStep step:Float) -> Float {
-        var count:Float = number/step
-        count = ceilf(count)
+    func fRoundUp(number:CGFloat, withStep step:CGFloat) -> CGFloat {
+        var count:CGFloat = number/step
+        count = count.rounded(.up)
         return count * step
     }
-    func fRoundDown(number:Float, withStep step:Float) -> Float {
-        var count:Float = number/step
-        count = floorf(count)
+    func fRoundDown(number:CGFloat, withStep step:CGFloat) -> CGFloat {
+        var count:CGFloat = number/step
+        count = count.rounded(.down)
         return count * step
     }
-    func getGetStepWithMinValue(minValue:Float, maxValue:Float) -> Float {
-        let maxRange:Float = maxValue - minValue
-        let step:Float = maxRange / Float(kMaxStepCount)
+    func getGetStepWithMinValue(minValue:CGFloat, maxValue:CGFloat) -> CGFloat {
+        let maxRange:CGFloat = maxValue - minValue
+        let step:CGFloat = maxRange / CGFloat(kMaxStepCount)
         if step <= 0.1 {
             return 0.1
         } else if step <= 1 {
@@ -205,7 +210,7 @@ class MYGraphView: BaseCustomView {
             return self.fRoundUp(number: step, withStep:10)
         } else {
             let numberString:String! = String(format:"%.0f",step)
-            return self.fRoundUp(number: step, withStep:(powf(10,Float(numberString.count - 1))))
+            return self.fRoundUp(number: step, withStep:( pow(10,CGFloat(numberString.count - 1))))
         }
     }
 
@@ -254,7 +259,7 @@ class MYGraphView: BaseCustomView {
     }
     // Drawing some text on view
     func drawText(text:String!, onView view:UIView!, at position:CGPoint, color:UIColor!) {
-        let lbl = UILabel.init()
+        let lbl = UILabel.init(frame: CGRect.init(origin: position, size: CGSize.zero))
         lbl.text = text
         lbl.textAlignment = .center
         lbl.textColor = kDefaultColor

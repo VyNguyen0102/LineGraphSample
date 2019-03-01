@@ -10,9 +10,33 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var mGraphView: LineGraphView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        var graphData: [GraphItem] = []
+        for i in 0...9 {
+            var itemValue: [GraphItemPoint] = []
+            for y in 0..<3 {
+                let item = GraphItemPoint.init(itemID: y, value: CGFloat(getRandomNumberBetween(5, to: 18)))
+                itemValue.append(item)
+            }
+            let graphItem = GraphItem(stringLabel: "Label \(i)", valueArray: itemValue)
+            graphData.append(graphItem)
+        }
+        
+        mGraphView.graphValues = graphData
+    }
+    
+    func getRandomNumberBetween(_ from: Int, to: Int) -> Int {
+        
+        return from + Int(arc4random()) % (to - from + 1)
+        for _ in 1...5 {
+            print("Hello World")
+        }
+        [1,2,3,4].forEach { behavior in
+            return
+        }
     }
 
 

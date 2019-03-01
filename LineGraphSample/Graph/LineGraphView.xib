@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14283.14"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MYGraphView">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LineGraphView" customModule="LineGraphSample" customModuleProvider="target">
             <connections>
                 <outlet property="footerView" destination="jB5-wg-FXd" id="ucg-8I-ldr"/>
                 <outlet property="leftRuler" destination="FvM-Wm-Gh9" id="DEv-h4-oBp"/>
-                <outlet property="mainScrollContent" destination="3TV-0P-xoc" id="ObW-WE-G2u"/>
                 <outlet property="mainScrollView" destination="HYZ-wW-SNL" id="aqL-xL-nQw"/>
             </connections>
         </placeholder>
@@ -24,7 +23,7 @@
             <subviews>
                 <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jb3-oP-83c">
                     <rect key="frame" x="0.0" y="0.0" width="403" height="385"/>
-                    <color key="backgroundColor" red="0.77647058820000003" green="0.85098039219999999" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <color key="backgroundColor" red="0.79772343525984701" green="0.8840659483310801" blue="0.98018539507772018" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jB5-wg-FXd">
                     <rect key="frame" x="0.0" y="325" width="403" height="60"/>
@@ -41,14 +40,8 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wxN-Vc-nCY">
                     <rect key="frame" x="60" y="0.0" width="343" height="325"/>
                 </view>
-                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HYZ-wW-SNL">
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HYZ-wW-SNL">
                     <rect key="frame" x="60" y="0.0" width="343" height="385"/>
-                    <subviews>
-                        <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3TV-0P-xoc">
-                            <rect key="frame" x="0.0" y="0.0" width="343" height="385"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        </view>
-                    </subviews>
                 </scrollView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
